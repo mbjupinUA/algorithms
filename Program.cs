@@ -1,5 +1,6 @@
 ﻿using System;
-using AllAlgorithms.IntroductoryProblems; // Include the CollatzConjecture class
+using System.Threading;
+using AllAlgorithms.IntroductoryProblems;
 
 namespace AllAlgorithms
 {
@@ -7,6 +8,8 @@ namespace AllAlgorithms
     {
         static void Main(string[] args)
         {
+            ShowWelcomeBanner();
+
             while (true)
             {
                 string[] mainOptions = new string[]
@@ -28,10 +31,11 @@ namespace AllAlgorithms
 
                 if (selectedOption == mainOptions.Length - 1)
                 {
-                    Console.Clear();
-                    Console.WriteLine("Exiting...");
+                    ExitAnimation();
                     break;
                 }
+
+                AnimateTransition("Opening");
 
                 switch (selectedOption)
                 {
@@ -65,11 +69,65 @@ namespace AllAlgorithms
                     case 9:
                         Pause("Tree Algorithms not implemented yet.");
                         break;
-                    default:
-                        break;
                 }
             }
         }
+
+        static void ShowWelcomeBanner()
+        {
+            Console.Clear();
+            string[] banner = new string[]
+            {
+                @"    _    _                  _ _   _                   ",
+                @"   / \  | | __ _  ___  _ __(_) |_| |__  _ __ ___  ___ ",
+                @"  / _ \ | |/ _` |/ _ \| '__| | __| '_ \| '_ ` _ \/ __|",
+                @" / ___ \| | (_| | (_) | |  | | |_| | | | | | | | \__ \",
+                @"/_/   \_\_|\__, |\___/|_|  |_|\__|_| |_|_| |_| |_|___/",
+                @"           |___/                                      "
+            };
+            ConsoleColor[] colors = (ConsoleColor[])Enum.GetValues(typeof(ConsoleColor));
+            Random rand = new Random();
+
+            foreach (var line in banner)
+            {
+                Console.ForegroundColor = colors[rand.Next(colors.Length)];
+                Console.WriteLine(line);
+                Thread.Sleep(80);
+            }
+
+            Console.ResetColor();
+            Console.WriteLine("\nWelcome to the Algorithms Hub!");
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey(true);
+            AnimateTransition("Loading Menu");
+        }
+
+        static void AnimateTransition(string message = "Loading")
+        {
+            Console.Clear();
+            Console.Write(message);
+            for (int i = 0; i < 3; i++)
+            {
+                Thread.Sleep(300);
+                Console.Write(".");
+            }
+            Thread.Sleep(300);
+            Console.Clear();
+        }
+
+        static void ExitAnimation()
+        {
+            Console.Clear();
+            string goodbye = "Thanks for using Algorithms Hub!";
+            foreach (char c in goodbye)
+            {
+                Console.Write(c);
+                Thread.Sleep(50);
+            }
+            Console.WriteLine("\n\nExiting...");
+            Thread.Sleep(1000);
+        }
+
         static int DisplayMenu(string title, string[] options)
         {
             int selected = 0;
@@ -96,31 +154,25 @@ namespace AllAlgorithms
 
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                 key = keyInfo.Key;
-
                 if (key == ConsoleKey.DownArrow)
-                {
-                    selected++;
-                    if (selected >= options.Length)
-                        selected = 0;
-                }
+                    selected = (selected + 1) % options.Length;
                 else if (key == ConsoleKey.UpArrow)
-                {
-                    selected--;
-                    if (selected < 0)
-                        selected = options.Length - 1;
-                }
+                    selected = (selected - 1 + options.Length) % options.Length;
 
             } while (key != ConsoleKey.Enter);
 
             return selected;
         }
+
         static void Pause(string message)
         {
             Console.Clear();
             Console.WriteLine("\n" + message);
             Console.WriteLine("\nPress any key to return to the menu...");
             Console.ReadKey(true);
+            AnimateTransition("Returning");
         }
+
         static void ShowIntroductoryProblemsMenu()
         {
             string[] introOptions = new string[]
@@ -130,6 +182,7 @@ namespace AllAlgorithms
             };
 
             int selected = DisplayMenu("=== Introductory Problems ===", introOptions);
+
             if (selected == 0)
             {
                 CollatzConjecture.Run();
